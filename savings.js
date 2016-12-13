@@ -215,11 +215,22 @@ var Savings = (function () {
     },
   };
 
+  var cache = {};
+
   /**
    * @param {function} success
    * @param {function} error
    */
   function fetchTransactions(success, error) {
+
+    // Use cached transactions
+    if (cache.transactions) {
+      initializeTransactions(cache.transactions);
+      success(cache.transactions);
+      return;
+    }
+
+    // Fetch transactions from API
     var xhr = new XMLHttpRequest();
     xhr.open(Request.METHOD, Request.URI, true);
     xhr.onreadystatechange = function() {
@@ -227,9 +238,9 @@ var Savings = (function () {
         return;
       } else if (this.status >= 200 && this.status < 400) {
         var response = JSON.parse(this.responseText);
-        var data = response.transactions || [];
-        var transactions = initializeTransactions(data);
-        success(transactions);
+        cache.transactions = response.transactions || [];
+        initializeTransactions(cache.transactions);
+        success(cache.transactions);
       } else if (typeof error === 'function') {
         error();
       }
@@ -242,15 +253,14 @@ var Savings = (function () {
   }
 
   /**
-   * @param {Object[]} data
-   * @returns {Transaction[]}
+   * @param {Object[]} transactions
    */
-  function initializeTransactions(data) {
-    var transactions = [];
-    for (var i = 0; i < data.length; ++i) {
-      transactions.push(new Transaction(data[i]));
+  function initializeTransactions(transactions) {
+    for (var i = 0; i < transactions.length; ++i) {
+      if (!(transactions[i] instanceof Transaction)) {
+        transactions[i] = new Transaction(transactions[i]);
+      }
     }
-    return transactions;
   }
 
 
@@ -436,6 +446,6 @@ var Savings = (function () {
   // Exports
   //
 
-  return {update: update};
+  return {cache: cache, update: update};
 
 })();
