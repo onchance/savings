@@ -1,9 +1,21 @@
 <!DOCTYPE html>
 
 <meta charset=utf-8>
-<title>Savings</title>
+<title>Monthly Savings</title>
 <link rel=stylesheet href=savings.css>
 
-<output id=output></output>
+<main id=main hidden>
+  <h1>Monthly Savings</h1>
+  <table id=chart></table>
+
+  <input id=show-output type=checkbox>
+  <label for=show-output></label>
+  <output id=output></output>
+</main>
+
+<noscript>
+  Please enable JavaScript to view your monthly savings.
+</noscript>
+
 <script src=savings.js></script>
 <script>Savings.update()</script>

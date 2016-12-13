@@ -1,5 +1,126 @@
+body {
+  padding: 1em;
+  text-align: center;
+  font-size: 13px;
+  font-family: Georgia, serif;
+  color: #070707;
+  background-color: #fafafa;
+}
+
+
+h1 {
+  margin: 1em auto;
+}
+
+table {
+  border-collapse: collapse;
+  margin: 1em auto;
+}
+
 output {
-  display: block;
+  display: inline-block;
+  *display: inline;
+  zoom: 1;
+  margin: 1em 0;
+  text-align: left;
   font-family: monospace;
   white-space: pre;
+}
+
+
+tbody tr:nth-child(2n + 1) {
+  background-color: #eaeaea;
+}
+tbody tr:hover {
+  background-color: #ddd;
+}
+tfoot tr {
+  font-weight: bold;
+}
+
+th,
+td {
+  padding: 6px 10px;
+}
+
+thead th,
+tfoot th,
+tfoot td {
+  padding: 12px 10px;
+}
+
+.month {
+  text-align: right;
+  text-transform: capitalize;
+}
+
+.bar {
+  padding-left: 0;
+  padding-right: 0;
+}
+.amount {
+  text-align: right;
+}
+
+.spent.bar {
+  text-align: right;
+}
+.income.bar {
+  text-align: left;
+}
+.deficit.bar {
+  padding-left: 80px;
+  text-align: right;
+}
+.surplus.bar {
+  text-align: left;
+}
+
+.spent.bar b,
+.deficit.bar b {
+  background-color: red;
+}
+
+.income.bar b,
+.surplus.bar b {
+  background-color: black;
+}
+
+.bar b {
+  display: inline-block;
+  *display: inline;
+  zoom: 1;
+  height: 100%;
+  vertical-align: -15%;
+}
+
+.accounting.negative {
+  color: red;
+}
+
+
+#show-output {
+  display: none;
+}
+#show-output + label {
+  display: none;
+  margin: 2em 0 1em;
+  font-weight: bold;
+  color: #777;
+}
+#show-output + label:hover {
+  color: #333;
+}
+#show-output:checked + label,
+#show-output:not(:checked) + label {
+  display: block;
+}
+#show-output:checked + label:after {
+  content: "Hide Raw Data";
+}
+#show-output:not(:checked) + label:after {
+  content: "Show Raw Data";
+}
+#show-output:not(:checked) + label + output {
+  display: none;
 }

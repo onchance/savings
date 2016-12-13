@@ -57,8 +57,8 @@ Requirements
 Enhancements
 ---
 
-- [ ] Display the aggregates in a more pretty format.
-      - [ ] Display a chart of monthly income and spending.
+- [x] Display the aggregates in a more pretty format.
+      - [x] Display a chart of monthly income and spending.
       - [ ] Display a table of the transactions included in the monthly aggregates.
 - [ ] Provide an `ignore-donuts` option to ignore (the oh-so-important) donuts transactions named `"Krispy Kreme Donuts"` or `"DUNKIN #336784"`.
 - [ ] Provide a `crystal-ball` option to show projected income and spending for the current month using data from the `GetProjectedTransactionsForMonth` endpoint.

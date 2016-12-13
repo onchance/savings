@@ -130,6 +130,44 @@ var Savings = (function () {
   };
 
   /**
+   * @returns {number}
+   */
+  MonthlyAggregate.prototype.getSavings = function () {
+    return this.income - this.spent;
+  };
+
+  /**
+   * @returns {number}
+   */
+  MonthlyAggregate.prototype.getSurplus = function () {
+    var savings = this.getSavings();
+    return savings > 0 ? savings : 0;
+  };
+
+  /**
+   * @returns {number}
+   */
+  MonthlyAggregate.prototype.getDeficit = function () {
+    var savings = this.getSavings();
+    return savings < 0 ? -savings : 0;
+  };
+
+  /**
+   * @static
+   * @param {Object.<string,MonthlyAggregate>} aggregates
+   * @return {MonthlyAggregate}
+   */
+  MonthlyAggregate.max = function (aggregates) {
+    var max = new MonthlyAggregate;
+    for (var key in aggregates) {
+      var aggregate = aggregates[key];
+      max.income = Math.max(max.income, aggregate.income);
+      max.spent = Math.max(max.spent, aggregate.spent);
+    }
+    return max;
+  };
+
+  /**
    * @static
    * @param {Object.<string,MonthlyAggregate>} aggregates
    * @returns {MonthlyAggregate}
@@ -258,16 +296,119 @@ var Savings = (function () {
   //
 
   /**
+   * @constant {number} - max bar width in pixels
+   */
+  var MAX_BAR_WIDTH = 150;
+
+  /**
    * @param {Object.<string,MonthlyAggregate>}
    */
   function render(months) {
+
+    // Table
+
+    var max = MonthlyAggregate.max(months);
+    var scale = MAX_BAR_WIDTH / Math.max(max.spent, max.income);
+
+    var html = [];
+
+    html.push(
+      '<thead>',
+        '<tr>',
+          '<th class=month>',
+          '<th class=spent colspan=2>Monthly Spending',
+          '<th class=income colspan=2>Monthly Income',
+          '<th class=savings colspan=3>Net Savings'
+    );
+
+    html.push('<tbody>');
+    for (var month in months) {
+      if (month === 'average') html.push('<tfoot>');
+      var aggregate = months[month];
+      var spentWidth = css(scale * aggregate.spent, 'px');
+      var incomeWidth = css(scale * aggregate.income, 'px');
+      var deficitWidth = css(scale * aggregate.getDeficit(), 'px');
+      var surplusWidth = css(scale * aggregate.getSurplus(), 'px');
+      var savingsSign = aggregate.getSavings() < 0 ? '-' : '+';
+      html.push(
+        '<tr>',
+          '<th class=month>', formatMonth(month),
+          '<td class="spent bar">',
+            '<b style="width: ', spentWidth,  '"></b>',
+          '<td class="spent amount">',
+            formatDollars(aggregate.spent, 2),
+          '<td class="income amount">',
+            formatDollars(aggregate.income, 2),
+          '<td class="income bar">',
+            '<b style="width: ', incomeWidth, '"></b>',
+          '<td class="savings deficit bar">',
+            '<b style="width: ', deficitWidth, '"></b>',
+          '<td class="savings surplus bar">',
+            '<b style="width: ', surplusWidth, '"></b>',
+          '<td class="savings net amount">',
+            formatAccounting(aggregate.getSavings(), 2)
+      );
+    }
+    chart.innerHTML = html.join('');
+
+    // JSON
     output.innerHTML = JSON.stringify(months, null, 2);
+
+    // Show All
+    main.hidden = false;
   }
 
 
   //
   // Utilities
   //
+
+  /**
+   * @param {number} value
+   * @param {string} unit
+   * @returns {string}
+   */
+  function css(value, unit) {
+    return value.toFixed(2) + unit;
+  }
+
+  /**
+   * @param {number}  amount
+   * @param {number} [decimals=0]
+   * @returns {string}
+   */
+  function formatAccounting(amount, decimals) {
+    var dollars = formatDollars(Math.abs(amount), decimals);
+    if (amount < 0) {
+      return '<span class="accounting negative">(' + dollars + ')</span>';
+    } else {
+      return '<span class="accounting positive">' + dollars + ' </span>';
+    }
+  }
+
+  /**
+   * @param {number}  amount
+   * @param {number} [decimals=0]
+   * @returns {string}
+   */
+  function formatDollars(amount, decimals) {
+    var whole = amount.toLocaleString().split('.')[0];
+    var part = decimals > 0 ? '.' + amount.toFixed(decimals).split('.')[1] : '';
+    return '$' + whole + part;
+  }
+
+  /**
+   * @param {string} month
+   * @returns {string}
+   */
+  function formatMonth(month) {
+    if (/^\d\d\d\d-\d\d$/.test(month)) {
+      var datestring = new Date(month).toUTCString();
+      var MMM_YYYY = datestring.split(' ').slice(2, 4);
+      return MMM_YYYY.join(' ');
+    }
+    return month;
+  }
 
   /**
    * @param {Object} object
