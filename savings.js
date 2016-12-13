@@ -15,6 +15,13 @@ var Savings = (function () {
 
 
   //
+  // Shims
+  //
+
+  Object.freeze = Object.freeze || function (o) { return o; };
+
+
+  //
   // Data Models
   //
 
@@ -22,16 +29,44 @@ var Savings = (function () {
    * @class
    */
   function Transaction(object) {
-    // TODO
+    for (var property in this.DEFAULTS) {
+      if (object && object.hasOwnProperty(property)) {
+        this[property] = object[property];
+      } else {
+        this[property] = this.DEFAULTS[property];
+      }
+    }
+    Object.freeze(this);
   }
 
   /**
+   * @constant {Object}
+   */
+  Transaction.prototype.DEFAULTS = {
+    'account-id': null,
+    'aggregation-time': null,
+    'amount': null,
+    'categorization': null,
+    'clear-date': null,
+    'is-pending': null,
+    'merchant': null,
+    'raw-merchant': null,
+    'transaction-id': null,
+    'transaction-time': null,
+  };
+
+  /**
    * Get month as "YYYY-MM" string.
-   * @param {string} [timezone='Z']
+   * @param {string} [timezone='Z'] - ignored for now
    * @returns {string}
    */
   Transaction.prototype.getMonth = function (timezone) {
-    // TODO
+    var datetime = this['transaction-time'];
+    if (typeof datetime !== 'string') {
+      return null;
+    } else {
+      return datetime.slice(0, 'YYYY-MM'.length);
+    }
   };
 
   /**
@@ -53,8 +88,22 @@ var Savings = (function () {
    * @class
    */
   function MonthlyAggregate(object) {
-    // TODO
+    for (var property in this.DEFAULTS) {
+      if (object && object.hasOwnProperty(property)) {
+        this[property] = object[property];
+      } else {
+        this[property] = this.DEFAULTS[property];
+      }
+    }
   }
+
+  /**
+   * @constant {Object}
+   */
+  MonthlyAggregate.prototype.DEFAULTS = {
+    'income': 0,
+    'spent': 0,
+  };
 
   /**
    * Convert to numbers to strings for JSON serialization.
@@ -86,7 +135,17 @@ var Savings = (function () {
    * @returns {MonthlyAggregate}
    */
   MonthlyAggregate.average = function (aggregates) {
-    // TODO
+    var mean = new MonthlyAggregate();
+    var count = 0;
+    for (var key in aggregates) {
+      var aggregate = aggregates[key];
+      mean.income += aggregate.income;
+      mean.spent += aggregate.spent;
+      count += 1;
+    }
+    mean.income /= count;
+    mean.spent /= count;
+    return mean;
   };
 
 
@@ -94,13 +153,54 @@ var Savings = (function () {
   // Data Fetching
   //
 
+  var Auth = {
+    UID: 1110590645,
+    TOKEN: '66B9004184CBCE113F7653CB863DE416',
+    API_TOKEN: 'AppTokenForInterview',
+  };
+
+  var Request = {
+    METHOD: 'POST',
+    HEADERS: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    URI: 'https://2016.api.levelmoney.com/api/v2/core/get-all-transactions',
+    BODY: {
+     'args': {
+       'uid': Auth.UID,
+       'token': Auth.TOKEN,
+       'api-token': Auth.API_TOKEN,
+       'json-strict-mode': false,
+       'json-verbose-response': false,
+      },
+    },
+  };
+
   /**
-   * @param {function} callback
+   * @param {function} success
+   * @param {function} error
    */
-  function fetchTransactions(callback) {
-    var data = [];  // TODO
-    var transactions = initializeTransactions(data);
-    callback(transactions);
+  function fetchTransactions(success, error) {
+    var xhr = new XMLHttpRequest();
+    xhr.open(Request.METHOD, Request.URI, true);
+    xhr.onreadystatechange = function() {
+      if (this.readyState !== 4) {
+        return;
+      } else if (this.status >= 200 && this.status < 400) {
+        var response = JSON.parse(this.responseText);
+        var data = response.transactions || [];
+        var transactions = initializeTransactions(data);
+        success(transactions);
+      } else if (typeof error === 'function') {
+        error();
+      }
+    };
+    for (var name in Request.HEADERS) {
+      xhr.setRequestHeader(name, Request.HEADERS[name]);
+    }
+    xhr.send(JSON.stringify(Request.BODY));
+    xhr = null;
   }
 
   /**
@@ -161,7 +261,7 @@ var Savings = (function () {
    * @param {Object.<string,MonthlyAggregate>}
    */
   function render(months) {
-    document.body.innerHTML = JSON.stringify(months, null, 2);
+    output.innerHTML = JSON.stringify(months, null, 2);
   }
 
 

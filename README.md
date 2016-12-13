@@ -6,7 +6,7 @@ Savings
 Requirements
 ---
 
-- [ ] Ingest transactions data from the (CORS-enabled) `GetAllTransactions` endpoint in the following format:
+- [x] Ingest transactions data from the (CORS-enabled) `GetAllTransactions` endpoint in the following format:
 
       ```json
       [
@@ -38,11 +38,11 @@ Requirements
       ]
       ```
 
-- [ ] Aggregate income transactions by month
+- [x] Aggregate income transactions by month
 
-- [ ] Aggregate spending transactions by month
+- [x] Aggregate spending transactions by month
 
-- [ ] Output aggregates in the following format:
+- [x] Output aggregates in the following format:
 
       ```json
       {
@@ -73,4 +73,12 @@ Architecture
 2. Filter transactions (*optional*) — for **Enhancements** only
 3. Aggregate transactions by month
 4. Output aggregates
+
+Implementation
+---
+
+Technologies like ES6, TypeScript, SCSS, *etc.*, can make a lot of sense for larger projects, but for this demo we use vanilla HTML, CSS, and JavaScript to:
+
+* Maximize backwards compatibility with older browsers
+* Avoid the need to compile before viewing in browser
 
