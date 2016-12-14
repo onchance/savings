@@ -41,6 +41,12 @@ tbody tr:nth-child(2n + 1) {
 tbody tr:hover {
   background-color: #ddd;
 }
+tbody tr.selected {
+  background-color: lightsteelblue;
+}
+tbody tr.selected:hover {
+  background-color: lightblue;
+}
 tfoot tr {
   font-weight: bold;
 }
@@ -54,6 +60,11 @@ thead th,
 tfoot th,
 tfoot td {
   padding: 12px 10px;
+}
+
+
+#chart tbody tr {
+  cursor: pointer;
 }
 
 .month {

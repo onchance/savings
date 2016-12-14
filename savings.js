@@ -6,13 +6,25 @@ var Savings = (function () {
   // Main
   //
 
+  var selected = {month: location.hash.slice(1)};
+
   function update() {
     var filters = getAndFreezeFilters();
     fetchTransactions(function (transactions) {
       transactions = filter(transactions, filters);
-      render(aggregate(transactions), transactions);
+      render(aggregate(transactions));
       unfreezeFilters();
     });
+  }
+
+  /**
+   * @param {string} month
+   */
+  function select(month) {
+    if (/^\d\d\d\d-\d\d$/.test(month)) {
+      selected.month = month;
+      update();
+    }
   }
 
 
@@ -93,6 +105,7 @@ var Savings = (function () {
    * @class
    */
   function MonthlyAggregate(object) {
+    this.transactions = object && object.transactions || [];
     for (var property in this.DEFAULTS) {
       if (object && object.hasOwnProperty(property)) {
         this[property] = object[property];
@@ -130,6 +143,7 @@ var Savings = (function () {
    * @param {Transaction} transaction
    */
   MonthlyAggregate.prototype.addTransaction = function (transaction) {
+    this.transactions.push(transaction);
     this.income += transaction.getIncome();
     this.spent += transaction.getSpent();
   };
@@ -349,6 +363,7 @@ var Savings = (function () {
 
     var html;
 
+
     // Monthly Chart
 
     var max = MonthlyAggregate.max(months);
@@ -365,37 +380,52 @@ var Savings = (function () {
           '<th class=savings colspan=3>Net Savings'
     );
 
+    if (!(selected.month in months)) {
+      selected.month = null;
+    }
+
     html.push('<tbody>');
     for (var month in months) {
-      if (month === 'average') html.push('<tfoot>');
       var aggregate = months[month];
       var spentWidth = css(scale * aggregate.spent, 'px');
       var incomeWidth = css(scale * aggregate.income, 'px');
       var deficitWidth = css(scale * aggregate.getDeficit(), 'px');
       var surplusWidth = css(scale * aggregate.getSurplus(), 'px');
       var savingsSign = aggregate.getSavings() < 0 ? '-' : '+';
+
+      selected.month = selected.month || month;
+      if (month === 'average') {
+        html.push('<tfoot>', '<tr>');
+      } else if (month === selected.month) {
+        html.push('<tr data-month=', month, ' class=selected>');
+      } else {
+        var onclick = "Savings.select('" + month + "')";
+        html.push('<tr data-month=', month, ' onclick=', onclick, '>');
+      }
+
       html.push(
-        '<tr>',
-          '<th class=month>', formatMonth(month),
-          '<td class="spent bar">',
-            '<b style="width: ', spentWidth,  '"></b>',
-          '<td class="spent amount">',
-            formatDollars(aggregate.spent, 2),
-          '<td class="income amount">',
-            formatDollars(aggregate.income, 2),
-          '<td class="income bar">',
-            '<b style="width: ', incomeWidth, '"></b>',
-          '<td class="savings deficit bar">',
-            '<b style="width: ', deficitWidth, '"></b>',
-          '<td class="savings surplus bar">',
-            '<b style="width: ', surplusWidth, '"></b>',
-          '<td class="savings net amount">',
-            formatAccounting(aggregate.getSavings(), 2)
+        '<th class=month>', formatMonth(month),
+        '<td class="spent bar">',
+          '<b style="width: ', spentWidth,  '"></b>',
+        '<td class="spent amount">',
+          formatDollars(aggregate.spent, 2),
+        '<td class="income amount">',
+          formatDollars(aggregate.income, 2),
+        '<td class="income bar">',
+          '<b style="width: ', incomeWidth, '"></b>',
+        '<td class="savings deficit bar">',
+          '<b style="width: ', deficitWidth, '"></b>',
+        '<td class="savings surplus bar">',
+          '<b style="width: ', surplusWidth, '"></b>',
+        '<td class="savings net amount">',
+          formatAccounting(aggregate.getSavings(), 2)
       );
     }
     chart.innerHTML = html.join('');
 
     // Transactions Table
+
+    var transactions = months[selected.month].transactions;
 
     html = [];
 
@@ -420,6 +450,8 @@ var Savings = (function () {
             formatAccounting(transaction['amount'] / 10000, 2)
       );
     }
+    location.hash = '#' + selected.month;
+    selectedmonth.innerHTML = formatMonth(selected.month || '');
     table.innerHTML = html.join('');
 
     // JSON
@@ -709,6 +741,10 @@ var Savings = (function () {
   // Exports
   //
 
-  return {cache: cache, update: update};
+  return {
+    cache: cache,
+    select: select,
+    update: update,
+  };
 
 })();
