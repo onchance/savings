@@ -261,11 +261,37 @@ var Savings = (function () {
    * @param {Object[]} transactions
    */
   function initializeTransactions(transactions) {
+
+    // 1. Only transactions initialize once
+    if (transactions.initialized) return;
+
+    // 2. Initialize and sort
     for (var i = 0; i < transactions.length; ++i) {
       if (!(transactions[i] instanceof Transaction)) {
         transactions[i] = new Transaction(transactions[i]);
       }
     }
+    sortTransactions(transactions);
+
+    // 3. Freeze transactions
+    transactions.initialized = true;
+    Object.freeze(transactions);
+  }
+
+  /**
+   * @param {Transaction[]} transactions
+   */
+  function sortTransactions(transactions) {
+
+    // 1. If initialized, transactions were already sorted
+    if (transactions.initialized) return;
+
+    // 2. Sort transactions by transaction time
+    transactions.sort(function (a, b) {
+      a = new Date(a['transaction-time']);
+      b = new Date(b['transaction-time']);
+      return a - b;
+    });
   }
 
 
@@ -487,13 +513,10 @@ var Savings = (function () {
 
       // 1. Shallow copy
       transactions = transactions.slice();
+      transactions.initialized = true;
 
       // 2. Sort transactions
-      transactions.sort(function (a, b) {
-        a = new Date(a['transaction-time']);
-        b = new Date(b['transaction-time']);
-        return a - b;
-      });
+      sortTransactions(transactions);
 
       // 3. Reject transactions with (reverse) sliding window
       var i = transactions.length;
