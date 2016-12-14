@@ -20,6 +20,9 @@ var Savings = (function () {
   // Shims
   //
 
+  if (typeof console === 'undefined') console = {};
+  console.info = console.info || function () {};
+
   Object.freeze = Object.freeze || function (o) { return o; };
 
 
@@ -398,6 +401,8 @@ var Savings = (function () {
           var text = (transaction[property] || '').toLocaleLowerCase();
           if (pattern.test(text) ^ invert) {
             filtered.push(transaction);
+          } else {
+            logRejection(transaction);
           }
         }
         return filtered;
@@ -484,10 +489,11 @@ var Savings = (function () {
 
         if (match > -1) {
           // c. Remove this transaction and matching opposite amount
-          var x = transactions.splice(i, 1);
-          var y = transactions.splice(i + match, 1);
+          var x = transactions.splice(i, 1)[0];
+          var y = transactions.splice(i + match, 1)[0];
           sliding.amounts.splice(match, 1);
           sliding.times.splice(match, 1);
+          logEqualAndOppositeRejection(x, y);
         } else {
           // d. Add this transaction to sliding window
           sliding.amounts.unshift(amount);
@@ -497,6 +503,37 @@ var Savings = (function () {
 
       return transactions;
     };
+  }
+
+  /**
+   * @param {Transaction} x
+   * @param {Transaction} y
+   */
+  function logEqualAndOppositeRejection(x, y) {
+    if (x['amount'] > y['amount']) {
+      var dummy = x; x = y; y = dummy;
+    }
+    console.info(
+      'Rejected:',
+      x['amount'] / 10000,
+      x['merchant'],
+      x['transaction-time'].slice(0, 16).replace('T', ' '),
+      y['transaction-time'].slice(0, 16).replace('T', ' '),
+      y['merchant'],
+      y['amount'] / 10000
+    );
+  }
+
+  /**
+   * @param {Transaction} x
+   */
+  function logRejection(x) {
+    console.info(
+      'Rejected:',
+      x['amount'] / 10000,
+      x['merchant'],
+      x['transaction-time'].slice(0, 16).replace('T', ' ')
+    );
   }
 
   /**
