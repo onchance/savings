@@ -60,7 +60,7 @@ Enhancements
 - [x] Display the aggregates in a more pretty format.
       - [x] Display a chart of monthly income and spending.
       - [ ] Display a table of the transactions included in the monthly aggregates.
-- [ ] Provide an `ignore-donuts` option to ignore (the oh-so-important) donuts transactions named `"Krispy Kreme Donuts"` or `"DUNKIN #336784"`.
+- [x] Provide an `ignore-donuts` option to ignore (the oh-so-important) donuts transactions named `"Krispy Kreme Donuts"` or `"DUNKIN #336784"`.
 - [ ] Provide a `crystal-ball` option to show projected income and spending for the current month using data from the `GetProjectedTransactionsForMonth` endpoint.
 - [ ] Provide an `ignore-cc-payments` option to ignore credit card payments that appear as two transactions in opposite amounts (*e.g.*, 5000000 centocents and -5000000 centocents) within 24 hours of each other. For verfication, also output of a list those ignored credit card payments.
 - [ ] Enable time zone support

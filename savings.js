@@ -7,9 +7,11 @@ var Savings = (function () {
   //
 
   function update() {
+    var filters = getAndFreezeFilters();
     fetchTransactions(function (transactions) {
-      transactions = filter(transactions);
+      transactions = filter(transactions, filters);
       render(aggregate(transactions));
+      unfreezeFilters();
     });
   }
 
@@ -366,6 +368,100 @@ var Savings = (function () {
 
     // Show All
     main.hidden = false;
+  }
+
+
+  //
+  // Filters
+  //
+
+  /**
+   * @param {Transaction[]} transactions
+   * @returns {Transaction[]}
+   */
+  function noop(transactions) {
+    return transactions;
+  }
+
+  /**
+   * @param {string} property
+   * @param {RegExp} pattern
+   * @param {boolean} [invert=false]
+   * @returns {function}
+   */
+  function filterByPattern(property, pattern, invert) {
+    if (pattern instanceof RegExp) {
+      return function (transactions) {
+        var filtered = [];
+        for (var i = 0; i < transactions.length; ++i) {
+          var transaction = transactions[i];
+          var text = (transaction[property] || '').toLocaleLowerCase();
+          if (pattern.test(text) ^ invert) {
+            filtered.push(transaction);
+          }
+        }
+        return filtered;
+      };
+    } else {
+      return noop;
+    }
+  }
+
+  /**
+   * @param {string} property
+   * @param {string} string
+   * @param {boolean} [invert=false]
+   * @returns {function}
+   */
+  function filterByString(property, string, invert) {
+    if (string && typeof string === 'string') {
+      var strings = string.toLocaleLowerCase().split(',');
+      var i = strings.length;
+      while (i--) {
+        strings[i] = strings[i].trim();
+        if (!strings[i]) strings.splice(i, 1);
+      }
+      var pattern = new RegExp(strings.join('|'));
+      return filterByPattern(property, pattern, invert);
+    } else {
+      return noop;
+    }
+  }
+
+  /**
+   * @param {string} property
+   * @param {RegExp} pattern
+   */
+  function rejectByPattern(property, pattern) {
+    return filterByPattern(property, pattern, true);
+  }
+
+  /**
+   * @param {string} property
+   * @param {string} string
+   */
+  function rejectByString(property, string) {
+    return filterByString(property, string, true);
+  }
+
+  /**
+   * @returns {function[]}
+   */
+  function getAndFreezeFilters() {
+
+    donut.disabled = true;
+    donut.onchange = null;
+
+    var filters = [];
+    if (!donut.checked) {
+      filters.push(rejectByPattern('merchant', /dunkin|donut/));
+    }
+    return filters;
+  }
+
+  function unfreezeFilters() {
+    donut.disabled = false;
+    donut.onchange = update;
   }
 
 
