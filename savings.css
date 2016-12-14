@@ -12,6 +12,10 @@ h1 {
   margin: 1em auto;
 }
 
+label {
+  margin-right: 1em;
+}
+
 table {
   border-collapse: collapse;
   margin: 1em auto;

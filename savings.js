@@ -445,14 +445,74 @@ var Savings = (function () {
   }
 
   /**
+   * @param {number} milliseconds
+   */
+  function rejectEqualAndOpposite(milliseconds) {
+    return function (transactions) {
+
+      // 1. Shallow copy
+      transactions = transactions.slice();
+
+      // 2. Sort transactions
+      transactions.sort(function (a, b) {
+        a = new Date(a['transaction-time']);
+        b = new Date(b['transaction-time']);
+        return a - b;
+      });
+
+      // 3. Reject transactions with (reverse) sliding window
+      var i = transactions.length;
+      var sliding = {amounts: [], times: []};
+      while (i--) {
+        var transaction = transactions[i];
+        var amount = transaction['amount'];
+        var time = new Date(transaction['transaction-time']);
+
+        // a. Trim end of sliding window to maintain interval size
+        var j = sliding.times.length;
+        while (j--) {
+          if (sliding.times[j] - time > milliseconds) {
+            sliding.amounts.pop();
+            sliding.times.pop();
+          } else {
+            break;
+          }
+        }
+
+        // b. Search for closest matching opposite amount
+        var match = sliding.amounts.indexOf(-amount);
+
+        if (match > -1) {
+          // c. Remove this transaction and matching opposite amount
+          var x = transactions.splice(i, 1);
+          var y = transactions.splice(i + match, 1);
+          sliding.amounts.splice(match, 1);
+          sliding.times.splice(match, 1);
+        } else {
+          // d. Add this transaction to sliding window
+          sliding.amounts.unshift(amount);
+          sliding.times.unshift(time);
+        }
+      }
+
+      return transactions;
+    };
+  }
+
+  /**
    * @returns {function[]}
    */
   function getAndFreezeFilters() {
 
+    card.disabled = true;
+    card.onchange = null;
     donut.disabled = true;
     donut.onchange = null;
 
     var filters = [];
+    if (!card.checked) {
+      filters.push(rejectEqualAndOpposite(24 * 60 * 60 * 1000));
+    }
     if (!donut.checked) {
       filters.push(rejectByPattern('merchant', /dunkin|donut/));
     }
@@ -460,6 +520,8 @@ var Savings = (function () {
   }
 
   function unfreezeFilters() {
+    card.disabled = false;
+    card.onchange = update;
     donut.disabled = false;
     donut.onchange = update;
   }
