@@ -9,7 +9,7 @@ body {
 
 
 h1 {
-  margin: 1em auto;
+  margin: 3em auto 1em;
 }
 
 label {
@@ -32,6 +32,9 @@ output {
 }
 
 
+thead {
+  font-size: larger;
+}
 tbody tr:nth-child(2n + 1) {
   background-color: #eaeaea;
 }
@@ -97,6 +100,15 @@ tfoot td {
   height: 100%;
   vertical-align: -15%;
 }
+
+
+.date {
+  text-align: center;
+}
+.merchant {
+  text-align: left;
+}
+
 
 .accounting.negative {
   color: red;

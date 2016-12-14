@@ -10,7 +10,7 @@ var Savings = (function () {
     var filters = getAndFreezeFilters();
     fetchTransactions(function (transactions) {
       transactions = filter(transactions, filters);
-      render(aggregate(transactions));
+      render(aggregate(transactions), transactions);
       unfreezeFilters();
     });
   }
@@ -316,16 +316,19 @@ var Savings = (function () {
   var MAX_BAR_WIDTH = 150;
 
   /**
-   * @param {Object.<string,MonthlyAggregate>}
+   * @param {Object.<string,MonthlyAggregate>} months
+   * @param {Transaction[]} transactions
    */
-  function render(months) {
+  function render(months, transactions) {
 
-    // Table
+    var html;
+
+    // Monthly Chart
 
     var max = MonthlyAggregate.max(months);
     var scale = MAX_BAR_WIDTH / Math.max(max.spent, max.income);
 
-    var html = [];
+    html = [];
 
     html.push(
       '<thead>',
@@ -365,6 +368,33 @@ var Savings = (function () {
       );
     }
     chart.innerHTML = html.join('');
+
+    // Transactions Table
+
+    html = [];
+
+    html.push(
+      '<thead>',
+        '<tr>',
+          '<th class=date>Date',
+          '<th class=merchant>Merchant',
+          '<th class=amount>Amount'
+    );
+
+    html.push('<tbody>');
+    for (var i = 0; i < transactions.length; ++i) {
+      var transaction = transactions[i];
+      html.push(
+        '<tr>',
+          '<td class=date>',
+            formatDate(transaction['transaction-time']),
+          '<td class=merchant>',
+            transaction['merchant'],
+          '<td class=amount>',
+            formatAccounting(transaction['amount'] / 10000, 2)
+      );
+    }
+    table.innerHTML = html.join('');
 
     // JSON
     output.innerHTML = JSON.stringify(months, null, 2);
@@ -603,16 +633,31 @@ var Savings = (function () {
   }
 
   /**
-   * @param {string} month
+   * @param {string} datetime
    * @returns {string}
    */
-  function formatMonth(month) {
-    if (/^\d\d\d\d-\d\d$/.test(month)) {
-      var datestring = new Date(month).toUTCString();
+  function formatDate(datetime) {
+    var date = new Date(datetime);
+    if (!isNaN(date)) {
+      var datestring = date.toUTCString();
+      var DD_MMM_YYYY = datestring.split(' ').slice(1, 4);
+      return DD_MMM_YYYY.join(' ');
+    }
+    return datetime;
+  }
+
+  /**
+   * @param {string} datetime
+   * @returns {string}
+   */
+  function formatMonth(datetime) {
+    var date = new Date(datetime);
+    if (!isNaN(date)) {
+      var datestring = date.toUTCString();
       var MMM_YYYY = datestring.split(' ').slice(2, 4);
       return MMM_YYYY.join(' ');
     }
-    return month;
+    return datetime;
   }
 
   /**
