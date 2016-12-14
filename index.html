@@ -4,11 +4,11 @@
 <title>Monthly Savings</title>
 <link rel=stylesheet href=savings.css>
 
-<main id=main hidden>
+<h1>Monthly Savings</h1>
 
-  <!-- Monthly Chart -->
+<!-- Filter Controls -->
 
-  <h1>Monthly Savings</h1>
+<form>
 
   <input id=card type=checkbox checked>
   <label for=card>Include Credit Card Payments</label>
@@ -16,20 +16,32 @@
   <input id=donut type=checkbox checked>
   <label for=donut>Include Donut Purchases</label>
 
-  <table id=chart></table>
+</form>
 
+<main id=main style="display: none">
 
-  <!-- Monthly JSON -->
+  <!-- Monthly Chart -->
 
-  <input id=show-output type=checkbox>
-  <label for=show-output></label>
-  <output id=output></output>
+  <section>
+
+    <h2>Monthly Summary</h2>
+    <table id=chart></table>
+
+    <input id=show-output type=checkbox>
+    <label for=show-output></label>
+    <output id=output></output>
+
+  </section>
 
 
   <!-- Transactions Table -->
 
-  <h1><span id=selectedmonth></span> Transactions</h1>
-  <table id=table></table>
+  <section>
+
+    <h2><span id=selectedmonth></span> Transactions</h2>
+    <table id=table></table>
+
+  </section>
 
 </main>
 

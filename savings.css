@@ -1,4 +1,5 @@
 body {
+  min-width: 920px;
   padding: 1em;
   text-align: center;
   font-size: 13px;
@@ -7,9 +8,22 @@ body {
   background-color: #fafafa;
 }
 
+/* Side-by-side layout on wide screens */
+@media (min-width: 1280px) {
+  main {
+    display: inline-block;
+    *display: inline;
+    zoom: 1;
+  }
+  section {
+    float: left;
+    margin: 0.5em;
+  }
+}
 
-h1 {
-  margin: 3em auto 1em;
+h1,
+h2 {
+  margin-top: 2em;
 }
 
 label {

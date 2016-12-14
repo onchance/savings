@@ -375,8 +375,8 @@ var Savings = (function () {
       '<thead>',
         '<tr>',
           '<th class=month>',
-          '<th class=spent colspan=2>Monthly Spending',
-          '<th class=income colspan=2>Monthly Income',
+          '<th class=spent colspan=2>Spending',
+          '<th class=income colspan=2>Income',
           '<th class=savings colspan=3>Net Savings'
     );
 
@@ -458,7 +458,7 @@ var Savings = (function () {
     output.innerHTML = JSON.stringify(months, null, 2);
 
     // Show All
-    main.hidden = false;
+    main.style.display = '';
   }
 
 
