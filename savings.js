@@ -533,6 +533,7 @@ var Savings = (function () {
       var i = strings.length;
       while (i--) {
         strings[i] = strings[i].trim();
+        strings[i] = strings[i].replace(/([.*+?{}()|[\]\\^$])/g, '\\$1');
         if (!strings[i]) strings.splice(i, 1);
       }
       var pattern = new RegExp(strings.join('|'));
