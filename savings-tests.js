@@ -130,6 +130,9 @@
   //
 
   // Initialize
+
+  console.log('Running tests... (Errors will appear as "Assertion Failure")');
+
   Savings.update();
 
   var SPOTIFY = Savings.cache.transactions[0];
