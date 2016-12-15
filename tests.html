@@ -10,14 +10,14 @@
 
 <form>
 
-  <input id=card type=checkbox checked>
+  <input id=card type=checkbox checked disabled>
   <label for=card>Include Credit Card Payments</label>
 
-  <input id=donut type=checkbox checked>
+  <input id=donut type=checkbox checked disabled>
   <label for=donut>Include Donut Purchases</label>
 
   <input id=merchant placeholder="Filter by merchant…" title="Search for one merchant, or multiple
-merchants separated by commas">
+merchants separated by commas" disabled>
 
 </form>
 
@@ -49,8 +49,13 @@ merchants separated by commas">
 </main>
 
 <noscript>
-  Please enable JavaScript to view your monthly savings.
+  <p>Please enable JavaScript to view your monthly savings.
 </noscript>
+
+<!-- Requires IE 8+ for JSON -->
+<!--[if lt IE 8]>
+  <p>Please upgrade to IE 8+ to view your monthly savings.
+<![endif]-->
 
 <script src=savings.js></script>
 
