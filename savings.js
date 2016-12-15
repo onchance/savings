@@ -207,8 +207,10 @@ var Savings = (function () {
       mean.spent += aggregate.spent;
       count += 1;
     }
-    mean.income /= count;
-    mean.spent /= count;
+    if (count) {
+      mean.income /= count;
+      mean.spent /= count;
+    }
     return mean;
   };
 
@@ -432,7 +434,12 @@ var Savings = (function () {
 
     // Transactions Table
 
-    var transactions = months[selected.month].transactions;
+    var transactions = [];
+    if (selected.month === 'average') {
+      selected.month = null;
+    } else if (selected.month in months) {
+      transactions = months[selected.month].transactions;
+    }
 
     html = [];
 
@@ -457,7 +464,14 @@ var Savings = (function () {
             formatAccounting(transaction['amount'] / 10000, 2)
       );
     }
-    location.hash = '#' + selected.month;
+    if (!transactions.length) {
+      html.push(
+        '<tr>',
+          '<td colspan=3 style="text-align: center">',
+            'No transactions found'
+      );
+    }
+    location.hash = '#' + (selected.month || '');
     selectedmonth.innerHTML = formatMonth(selected.month || '');
     table.innerHTML = html.join('');
 
@@ -637,6 +651,9 @@ var Savings = (function () {
     card.onchange = null;
     donut.disabled = true;
     donut.onchange = null;
+    merchant.disabled = true;
+    merchant.oninput = null;
+    merchant.onkeydown = null;
 
     var filters = [];
     if (!card.checked) {
@@ -644,6 +661,9 @@ var Savings = (function () {
     }
     if (!donut.checked) {
       filters.push(rejectByPattern('merchant', /dunkin|donut/));
+    }
+    if (/\S/.test(merchant.value)) {
+      filters.push(filterByString('merchant', merchant.value));
     }
     return filters;
   }
@@ -653,6 +673,9 @@ var Savings = (function () {
     card.onchange = update;
     donut.disabled = false;
     donut.onchange = update;
+    merchant.disabled = false;
+    merchant.oninput = update;
+    merchant.onkeydown = update;
   }
 
 
