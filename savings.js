@@ -8,12 +8,19 @@ var Savings = (function () {
 
   var selected = {month: location.hash.slice(1)};
 
-  function update() {
+  /**
+   * @param {function} success
+   */
+  function update(success) {
     var filters = getAndFreezeFilters();
     fetchTransactions(function (transactions) {
       transactions = filter(transactions, filters);
-      render(aggregate(transactions));
+      var aggregates = aggregate(transactions);
+      render(aggregates);
       unfreezeFilters();
+      if (typeof success === 'function') {
+        success(transactions, aggregates);
+      }
     });
   }
 
