@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<meta charset=utf-8>
+<title>Monthly Savings</title>
+<link rel=stylesheet href=savings.css>
+
+<h1>Monthly Savings</h1>
+
+<!-- Filter Controls -->
+
+<form>
+
+  <input id=card type=checkbox checked disabled>
+  <label for=card>Include Credit Card Payments</label>
+
+  <input id=donut type=checkbox checked disabled>
+  <label for=donut>Include Donut Purchases</label>
+
+  <input id=merchant placeholder="Filter by merchant…" title="Search for one merchant, or multiple
+merchants separated by commas" disabled>
+
+</form>
+
+<main id=main style="display: none">
+
+  <!-- Monthly Chart -->
+
+  <section>
+
+    <h2>Monthly Summary</h2>
+    <table id=chart></table>
+
+    <input id=show-output type=checkbox>
+    <label for=show-output></label>
+    <output id=output></output>
+
+  </section>
+
+
+  <!-- Transactions Table -->
+
+  <section>
+
+    <h2><span id=selectedmonth></span> Transactions</h2>
+    <table id=table></table>
+
+  </section>
+
+</main>
+
+<noscript>
+  <p>Please enable JavaScript to view your monthly savings.
+</noscript>
+
+<!-- Requires IE 10+ for CORS -->
+<!--[if lt IE 10]>
+  <p>Please upgrade to IE 10+ to view your monthly savings.
+<![endif]-->
+
+<script src=savings.js></script>
+
+<!-- Uncomment to use local mocks instead of API -->
+<!-- <script src=savings-mocks.js></script> -->
+
+<!-- Uncomment to run tests -->
+<!-- <script src=savings-tests.js></script> -->
+
+<script>Savings.update()</script>
